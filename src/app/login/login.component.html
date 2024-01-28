@@ -1,0 +1,38 @@
+<div class="flex justify-center items-center h-screen">
+  <form
+    nz-form
+    [formGroup]="loginForm"
+    (ngSubmit)="submitForm()"
+    class="bg-white shadow-md rounded-lg p-6"
+  >
+    <nz-form-item>
+      <nz-form-label nzRequired>Username</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your username">
+        <input nz-input formControlName="username" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Password</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your password">
+        <input nz-input formControlName="password" type="password" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="nz-col mb-0" nzSpan="24">
+      <button class="w-full" nz-button nzType="primary" [nzLoading]="loading">
+        Log in
+      </button>
+    </nz-form-item>
+    <div class="text-center my-2 italic">— or —</div>
+    <!-- Request access button -->
+    <div class="flex justify-center items-center mt-4">
+      <button
+        nz-button
+        nzType="default"
+        class="text-xs w-full"
+        [routerLink]="['/signup']"
+      >
+        Request access
+      </button>
+    </div>
+  </form>
+</div>

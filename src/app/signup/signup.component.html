@@ -1,0 +1,74 @@
+<div class="flex justify-center items-center h-screen">
+  <form
+    nz-form
+    [formGroup]="loginForm"
+    (ngSubmit)="submitForm()"
+    class="bg-white shadow-md rounded-lg p-6"
+  >
+    @if(isSubmitted()) {
+    <div class="flex justify-center items-center">
+      <nz-result
+        nzStatus="success"
+        nzTitle="Your request has been submitted"
+        nzSubTitle="You will receive an email when your account has been approved"
+      >
+        <div nz-result-extra>
+          <button
+            nz-button
+            nzType="primary"
+            class="text-xs"
+            [routerLink]="['/login']"
+          >
+            Log in
+          </button>
+        </div>
+      </nz-result>
+    </div>
+    } @else {
+    <nz-form-item>
+      <nz-form-label nzRequired>Username</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your username">
+        <input nz-input formControlName="username" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Password</nz-form-label>
+      <nz-form-control nzErrorTip="Please input a password">
+        <input nz-input formControlName="password" type="password" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>First name</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your first name">
+        <input nz-input formControlName="firstName" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Last name</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your last name">
+        <input nz-input formControlName="lastName" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Email</nz-form-label>
+      <nz-form-control nzErrorTip="Please input your email">
+        <input nz-input formControlName="email" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Comment</nz-form-label>
+      <nz-form-control
+        nzErrorTip="Please input the reason you are requesting access"
+      >
+        <textarea nz-input formControlName="comment"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div class="flex justify-center items-center mt-4">
+      <button nz-button nzType="primary" class="text-xs w-full">
+        Request access
+      </button>
+    </div>
+    }
+  </form>
+</div>
