@@ -1,14 +1,65 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { Subscription } from 'rxjs';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-auth-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, NzIconModule],
   templateUrl: './auth-root.component.html',
   styleUrl: './auth-root.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AuthRootComponent {
+export class AuthRootComponent implements OnDestroy {
+  public readonly navItems: Array<{
+    label: string;
+    icon: string;
+    link: string;
+    requiresAdmin: boolean;
+  }> = [
+      {
+        label: 'Users',
+        icon: 'team',
+        link: '/app/users',
+        requiresAdmin: true
+      },
+      {
+        label: 'Requests',
+        icon: 'inbox',
+        link: '/app/requests',
+        requiresAdmin: true
+      }
+    ];
+  private readonly subscriptions: Subscription[] = [];
+  public constructor(
+    public readonly api: ApiService,
+    private readonly router: Router,
+    route: ActivatedRoute
+  ) {
+    this.subscriptions.push(
+      route.url.subscribe(() => {
+        if (this.router.url === '/app') {
+          const isAdmin = this.api.isAdmin();
 
+          if (isAdmin) {
+            this.router.navigate(['/app/users']);
+          } else {
+            this.router.navigate(['/app/home']);
+          }
+        }
+      })
+    );
+  }
+  public ngOnDestroy() {
+    for (const subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
+  }
+  public logout() {
+    this.api.logout();
+    this.router.navigate(['']);
+  }
 }

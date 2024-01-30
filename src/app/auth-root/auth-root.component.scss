@@ -1,0 +1,7 @@
+:host {
+  @apply flex flex-row h-full;
+
+  .active {
+    @apply bg-slate-100;
+  }
+}
