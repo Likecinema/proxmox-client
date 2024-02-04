@@ -1,6 +1,13 @@
 <div class="flex flex-row bg-white items-center p-3">
   <span class="text-2xl font-bold">Users</span>
-  <button class="ml-auto" nz-button nzType="primary">Create</button>
+  <button
+    class="ml-auto"
+    nz-button
+    nzType="primary"
+    (click)="selectUser(getNewUserObject())"
+  >
+    Create
+  </button>
 </div>
 @if(users(); as users) {
 <nz-table #table [nzFrontPagination]="false" [nzData]="users">
@@ -30,3 +37,74 @@
   </tbody>
 </nz-table>
 }
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzMaskClosable]="true"
+  [nzVisible]="!!selectedUser()"
+  nzTitle="Create"
+  [nzFooter]="footerTpl"
+  (nzOnClose)="selectedUser.set(null)"
+>
+  <div *nzDrawerContent>
+    <form
+      nz-form
+      [formGroup]="selectedUserForm"
+      (ngSubmit)="saveSelectedUser()"
+      class="bg-white shadow-md rounded-lg p-6"
+    >
+      <nz-form-item>
+        <nz-form-label nzRequired>Username</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="userid" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Email</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="email" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Password</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="password" type="password" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>First name</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="firstname" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Last name</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="lastname" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Comment</nz-form-label>
+        <nz-form-control>
+          <textarea nz-input formControlName="comment"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Enabled</nz-form-label>
+        <nz-form-control>
+          <nz-switch nz-input formControlName="enable"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+  <ng-template #footerTpl>
+    <div class="flex flex-row gap-2">
+      <button class="ml-auto" nz-button (click)="selectedUser.set(null)">
+        Cancel
+      </button>
+      <button nz-button nzType="primary" (click)="saveSelectedUser()">
+        Save
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
