@@ -1,1 +1,32 @@
-<p>users works!</p>
+<div class="flex flex-row bg-white items-center p-3">
+  <span class="text-2xl font-bold">Users</span>
+  <button class="ml-auto" nz-button nzType="primary">Create</button>
+</div>
+@if(users(); as users) {
+<nz-table #table [nzFrontPagination]="false" [nzData]="users">
+  <thead>
+    <tr>
+      <th>User ID</th>
+      <th>Email</th>
+      <th>First name</th>
+      <th>Last name</th>
+      <th>Enabled</th>
+      <th>Expire</th>
+      <th>Realm Type</th>
+      <th>Comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of table.data">
+      <td>{{ data.userid }}</td>
+      <td>{{ data.email }}</td>
+      <td>{{ data.firstname }}</td>
+      <td>{{ data.lastname }}</td>
+      <td>{{ data.enable ? "Yes" : "No" }}</td>
+      <td>{{ data.expire }}</td>
+      <td>{{ data["realm-type"] }}</td>
+      <td>{{ data.comment }}</td>
+    </tr>
+  </tbody>
+</nz-table>
+}

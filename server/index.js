@@ -14,14 +14,24 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/api/permissions", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   const Cookie = req.get("cookie");
   const CSRFPreventionToken = req.get("CSRFPreventionToken");
 
-  const permissions = await pmGetPermissions(Cookie, CSRFPreventionToken);
+  const users = await pmGetUsers(Cookie, CSRFPreventionToken);
+
+  res.json(users.data);
+});
+
+app.get("/api/permissions", async (req, res) => {
+  const cookie = req.get("cookie");
+  const acl = await pmGetACL();
+  const decodedCookie = decodeURIComponent(cookie.split("PVEAuthCookie=")[1]);
+  const userid = decodedCookie.split(":")[1];
+  const role = acl.data.find((role) => role.ugid === userid);
 
   res.json({
-    isAdmin: Boolean(permissions.data["/access"]?.["User.Modify"]),
+    isAdmin: role?.roleid === "PVEAdmin",
   });
 });
 
@@ -51,6 +61,37 @@ app.post("/api/signup", async (req, res) => {
 });
 
 app.listen(8080, () => console.log("Server running on port 8080"));
+
+async function pmGetACL() {
+  const ticketResponse = await pmLogin(
+    `${PROXMOX_ADMIN_USER}@${PROXMOX_ENV}`,
+    PROXMOX_ADMIN_PASS
+  );
+
+  const response = await fetch(`${PROXMOX_HOST}/api2/json/access/acl`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `PVEAuthCookie=${ticketResponse.data.ticket}`,
+      CSRFPreventionToken: ticketResponse.data.CSRFPreventionToken,
+    },
+  });
+
+  return await response.json();
+}
+
+async function pmGetUsers(cookie, csrfToken) {
+  const response = await fetch(`${PROXMOX_HOST}/api2/json/access/users`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookie,
+      CSRFPreventionToken: csrfToken,
+    },
+  });
+
+  return await response.json();
+}
 
 async function pmLogin(username, password) {
   const response = await fetch(`${PROXMOX_HOST}/api2/json/access/ticket`, {

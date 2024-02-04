@@ -22,6 +22,9 @@ export class ApiService {
     this.remoteTicket();
     this.isAdmin.set(false);
   }
+  public async getUsers() {
+    return await this.get<IUser[]>('/api/users');
+  }
   public async getPermissions() {
     return await this.get<{
       isAdmin: boolean;
@@ -90,3 +93,14 @@ interface ISignupRequestBody {
   lastName: string;
   comment: string;
 }
+
+export interface IUser {
+  comment?: string;
+  email: string;
+  enable: 0 | 1;
+  expire: number;
+  firstname: string;
+  lastname: string;
+  'realm-type': string;
+  userid: string;
+};
