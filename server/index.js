@@ -10,6 +10,7 @@ const PROXMOX_ADMIN_PASS = process.env.PROXMOX_ADMIN_PASS;
 const PROXMOX_ENV = "pve";
 
 const express = require("express");
+const { get } = require("http");
 const app = express();
 
 app.use(express.json());
@@ -21,6 +22,51 @@ app.get("/api/users", async (req, res) => {
   const users = await pmGetUsers(Cookie, CSRFPreventionToken);
 
   res.json(users.data);
+});
+
+app.delete("/api/users/:userid", async (req, res) => {
+  const Cookie = req.get("cookie");
+  const CSRFPreventionToken = req.get("CSRFPreventionToken");
+  const userid = req.params.userid;
+
+  await pmDeleteUser(userid, Cookie, CSRFPreventionToken);
+
+  res.json({ ok: true });
+});
+
+app.post("/api/users", async (req, res) => {
+  const Cookie = req.get("cookie");
+  const CSRFPreventionToken = req.get("CSRFPreventionToken");
+  const user = req.body;
+
+  const existingUser = await pmGetUser(
+    user.userid,
+    Cookie,
+    CSRFPreventionToken
+  );
+
+  if (existingUser.data) {
+    await pmUpdateUser(user.userid, Cookie, CSRFPreventionToken, user);
+  } else {
+    await pmCreateUser({
+      username: user.userid,
+      password: user.password,
+      email: user.email,
+      firstName: user.firstname,
+      lastName: user.lastname,
+      comment: user.comment,
+      enable: user.enable,
+      expire: 0,
+      ticketResponse: {
+        data: {
+          ticket: getTicketFromCookie(Cookie),
+          CSRFPreventionToken,
+        },
+      },
+    });
+  }
+
+  res.json({ ok: true });
 });
 
 app.get("/api/permissions", async (req, res) => {
@@ -55,12 +101,24 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/signup", async (req, res) => {
   const body = req.body;
 
+  body.ticketResponse = await pmLogin(
+    `${PROXMOX_ADMIN_USER}@${PROXMOX_ENV}`,
+    PROXMOX_ADMIN_PASS
+  );
+
+  body.enable = 0;
+  body.expire = 0;
+
   await pmCreateUser(body);
 
   res.json({ ok: true });
 });
 
 app.listen(8080, () => console.log("Server running on port 8080"));
+
+function getTicketFromCookie(cookie) {
+  return decodeURIComponent(cookie.split("PVEAuthCookie=")[1]);
+}
 
 async function pmGetACL() {
   const ticketResponse = await pmLogin(
@@ -117,12 +175,10 @@ async function pmCreateUser({
   firstName,
   lastName,
   comment,
+  enable,
+  expire,
+  ticketResponse,
 }) {
-  const ticketResponse = await pmLogin(
-    `${PROXMOX_ADMIN_USER}@${PROXMOX_ENV}`,
-    PROXMOX_ADMIN_PASS
-  );
-
   const response = await fetch(`${PROXMOX_HOST}/api2/json/access/users`, {
     method: "POST",
     headers: {
@@ -134,8 +190,8 @@ async function pmCreateUser({
       userid: `${username}@pve`,
       password,
       email,
-      expire: 0,
-      enable: 0,
+      expire,
+      enable,
       firstname: firstName,
       lastname: lastName,
       comment: comment,
@@ -145,15 +201,51 @@ async function pmCreateUser({
   return await response.json();
 }
 
-async function pmGetPermissions(cookie, csrfToken) {
-  const response = await fetch(`${PROXMOX_HOST}/api2/json/access/permissions`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: cookie,
-      CSRFPreventionToken: csrfToken,
-    },
-  });
+async function pmGetUser(userid, cookie, csrfToken) {
+  const response = await fetch(
+    `${PROXMOX_HOST}/api2/json/access/users/${userid}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookie,
+        CSRFPreventionToken: csrfToken,
+      },
+    }
+  );
+
+  return await response.json();
+}
+
+async function pmUpdateUser(userid, cookie, csrfToken, user) {
+  const response = await fetch(
+    `${PROXMOX_HOST}/api2/json/access/users/${userid}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookie,
+        CSRFPreventionToken: csrfToken,
+      },
+      body: JSON.stringify(user),
+    }
+  );
+
+  return await response.json();
+}
+
+async function pmDeleteUser(userid, cookie, csrfToken) {
+  const response = await fetch(
+    `${PROXMOX_HOST}/api2/json/access/users/${userid}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookie,
+        CSRFPreventionToken: csrfToken,
+      },
+    }
+  );
 
   return await response.json();
 }

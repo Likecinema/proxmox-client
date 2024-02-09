@@ -22,8 +22,22 @@ export class ApiService {
     this.remoteTicket();
     this.isAdmin.set(false);
   }
+  public async createUser(user: {
+    userid: string;
+    password: string;
+    email: string;
+    firstname: string;
+    lastname: string;
+    comment: string;
+    enable: 0 | 1;
+  }) {
+    await this.post('/api/users', user);
+  }
   public async getUsers() {
     return await this.get<IUser[]>('/api/users');
+  }
+  public async deleteUser(userid: string) {
+    await this.delete(`/api/users/${userid}`);
   }
   public async getPermissions() {
     return await this.get<{
@@ -62,6 +76,11 @@ export class ApiService {
   }
   private async get<T>(url: string) {
     return await this.request<T>(url);
+  }
+  private async delete<T>(url: string) {
+    return await this.request<T>(url, {
+      method: 'DELETE'
+    });
   }
   private async request<T>(url: string, init?: RequestInit | undefined) {
     const ticket = this.getTicket();

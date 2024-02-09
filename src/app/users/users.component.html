@@ -21,6 +21,7 @@
       <th>Expire</th>
       <th>Realm Type</th>
       <th>Comment</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -33,6 +34,14 @@
       <td>{{ data.expire }}</td>
       <td>{{ data["realm-type"] }}</td>
       <td>{{ data.comment }}</td>
+      <td class="flex flex-row gap-2">
+        <button nz-button (click)="selectedUser.set(data)">
+          <span nz-icon nzType="edit"></span>
+        </button>
+        <button nz-button nzDanger (click)="deleteUser(data.userid)">
+          <span nz-icon nzType="delete"></span>
+        </button>
+      </td>
     </tr>
   </tbody>
 </nz-table>
@@ -42,7 +51,7 @@
   [nzBodyStyle]="{ overflow: 'auto' }"
   [nzMaskClosable]="true"
   [nzVisible]="!!selectedUser()"
-  nzTitle="Create"
+  [nzTitle]="mode()"
   [nzFooter]="footerTpl"
   (nzOnClose)="selectedUser.set(null)"
 >
