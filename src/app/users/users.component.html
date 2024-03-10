@@ -105,7 +105,11 @@
       <nz-form-item>
         <nz-form-label>Role ID</nz-form-label>
         <nz-form-control>
-          <nz-select formControlName="roleid" nzPlaceHolder="Select a role">
+          <nz-select
+            formControlName="roleid"
+            [nzAllowClear]="true"
+            nzPlaceHolder="Select a role"
+          >
             <nz-option
               *ngFor="let role of roles()"
               [nzLabel]="role"

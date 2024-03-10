@@ -3,11 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "start": "concurrently --raw npm:ng:start npm:server:start",
+    "ng:start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "server": "nodemon server/index.js"
+    "server:start": "concurrently --raw npm:server:nodemon npm:server:watch",
+    "server:nodemon": "cd ./server && nodemon --exec \"npm start\"",
+    "server:watch": "cd ./server && npm run tsc-w"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +22,7 @@
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
+    "concurrently": "^8.2.2",
     "ng-zorro-antd": "^17.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
