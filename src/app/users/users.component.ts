@@ -5,6 +5,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { ApiService, IUser } from '../api.service';
@@ -19,7 +20,8 @@ import { ApiService, IUser } from '../api.service';
     NzFormModule,
     ReactiveFormsModule,
     NzSwitchModule,
-    NzIconModule
+    NzIconModule,
+    NzSelectModule
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -28,6 +30,7 @@ import { ApiService, IUser } from '../api.service';
 export class UsersComponent implements OnInit {
   public readonly users = signal<IUser[] | null>(null);
   public readonly selectedUser = signal<IUser | null>(null);
+  public readonly roles = signal<string[] | null>(null);
   public readonly mode = computed(() => {
     const user = this.selectedUser();
 
@@ -40,6 +43,7 @@ export class UsersComponent implements OnInit {
     firstname: [''],
     lastname: [''],
     comment: [''],
+    roleid: [''],
     enable: [false, Validators.required],
   });
   public constructor(
@@ -56,6 +60,7 @@ export class UsersComponent implements OnInit {
         firstname: user?.firstname,
         lastname: user?.lastname,
         comment: user?.comment,
+        roleid: user?.roleid,
         enable: user?.enable === 1,
       });
 
@@ -74,6 +79,10 @@ export class UsersComponent implements OnInit {
     const users = await this.api.getUsers();
 
     this.users.set(users);
+
+    const roles = await this.api.getRoles();
+
+    this.roles.set(roles);
   }
   public selectUser(user: IUser) {
     this.selectedUser.set(user);
@@ -97,6 +106,7 @@ export class UsersComponent implements OnInit {
       firstname: user.firstname!,
       lastname: user.lastname!,
       comment: user.comment!,
+      roleid: user.roleid!,
       enable: user.enable ? 1 : 0
     });
 

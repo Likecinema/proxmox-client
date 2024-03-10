@@ -29,6 +29,7 @@ export class ApiService {
     firstname: string;
     lastname: string;
     comment: string;
+    roleid?: string;
     enable: 0 | 1;
   }) {
     await this.post('/api/users', user);
@@ -38,6 +39,9 @@ export class ApiService {
   }
   public async deleteUser(userid: string) {
     await this.delete(`/api/users/${userid}`);
+  }
+  public async getRoles() {
+    return await this.get<string[]>('/api/roles');
   }
   public async getPermissions() {
     return await this.get<{
@@ -122,4 +126,5 @@ export interface IUser {
   lastname: string;
   'realm-type': string;
   userid: string;
+  roleid?: string;
 };

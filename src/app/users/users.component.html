@@ -20,6 +20,7 @@
       <th>Enabled</th>
       <th>Expire</th>
       <th>Realm Type</th>
+      <th>Role ID</th>
       <th>Comment</th>
       <th></th>
     </tr>
@@ -33,14 +34,17 @@
       <td>{{ data.enable ? "Yes" : "No" }}</td>
       <td>{{ data.expire }}</td>
       <td>{{ data["realm-type"] }}</td>
+      <td>{{ $any(data).roleid }}</td>
       <td>{{ data.comment }}</td>
-      <td class="flex flex-row gap-2">
-        <button nz-button (click)="selectedUser.set(data)">
-          <span nz-icon nzType="edit"></span>
-        </button>
-        <button nz-button nzDanger (click)="deleteUser(data.userid)">
-          <span nz-icon nzType="delete"></span>
-        </button>
+      <td>
+        <div class="flex flex-row gap-2">
+          <button nz-button (click)="selectedUser.set(data)">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button nz-button nzDanger (click)="deleteUser(data.userid)">
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </div>
       </td>
     </tr>
   </tbody>
@@ -96,6 +100,18 @@
         <nz-form-label>Comment</nz-form-label>
         <nz-form-control>
           <textarea nz-input formControlName="comment"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Role ID</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="roleid" nzPlaceHolder="Select a role">
+            <nz-option
+              *ngFor="let role of roles()"
+              [nzLabel]="role"
+              [nzValue]="role"
+            ></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>

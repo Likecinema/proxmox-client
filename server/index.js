@@ -18,10 +18,16 @@ app.use(express.json());
 app.get("/api/users", async (req, res) => {
   const Cookie = req.get("cookie");
   const CSRFPreventionToken = req.get("CSRFPreventionToken");
+  const acl = await pmGetACL();
 
   const users = await pmGetUsers(Cookie, CSRFPreventionToken);
 
-  res.json(users.data);
+  res.json(
+    users.data.map((user) => ({
+      ...user,
+      roleid: acl.data.find((role) => role.ugid === user.userid)?.roleid,
+    }))
+  );
 });
 
 app.delete("/api/users/:userid", async (req, res) => {
@@ -67,6 +73,15 @@ app.post("/api/users", async (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+app.get("/api/roles", async (req, res) => {
+  const Cookie = req.get("cookie");
+  const CSRFPreventionToken = req.get("CSRFPreventionToken");
+
+  const roles = await pmGetRoles(Cookie, CSRFPreventionToken);
+
+  res.json(roles.data.map((role) => role.roleid));
 });
 
 app.get("/api/permissions", async (req, res) => {
@@ -246,6 +261,33 @@ async function pmDeleteUser(userid, cookie, csrfToken) {
       },
     }
   );
+
+  return await response.json();
+}
+
+async function pmGetRoles(cookie, csrfToken) {
+  const response = await fetch(`${PROXMOX_HOST}/api2/json/access/roles`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookie,
+      CSRFPreventionToken: csrfToken,
+    },
+  });
+
+  return await response.json();
+}
+
+async function pmUpdateACL(cookie, csrfToken, acl) {
+  const response = await fetch(`${PROXMOX_HOST}/api2/json/access/acl`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookie,
+      CSRFPreventionToken: csrfToken,
+    },
+    body: JSON.stringify(acl),
+  });
 
   return await response.json();
 }
