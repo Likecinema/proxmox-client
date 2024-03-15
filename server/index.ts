@@ -65,6 +65,8 @@ import { PROXMOX_ADMIN_PASS, PROXMOX_ADMIN_USER, PROXMOX_ENV } from './constants
         }
       }
     } else {
+      delete user.roleid;
+
       await client.createUser(user);
     }
 
