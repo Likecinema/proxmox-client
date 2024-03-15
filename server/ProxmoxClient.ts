@@ -53,6 +53,10 @@ export class ProxmoxClient {
     }>('/api2/json/access/users');
   }
   public async getUser(userid: string) {
+    if (!userid.includes('@')) {
+      userid += `@${PROXMOX_ENV}`;
+    }
+
     return await this.get<{
       data: IUserInfo;
     }>(`/api2/json/access/users/${userid}`);
@@ -122,10 +126,6 @@ export class ProxmoxClient {
         ...options.headers,
       },
     });
-
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
 
     return await response.json() as T;
   }
