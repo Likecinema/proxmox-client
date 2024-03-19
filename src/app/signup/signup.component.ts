@@ -26,7 +26,7 @@ import { ApiService } from '../api.service';
 })
 export class SignupComponent {
   public readonly loginForm = this.fb.group({
-    username: ['', Validators.required],
+    userid: ['', Validators.required],
     password: ['', Validators.required],
     email: ['', Validators.required],
     firstName: ['', Validators.required],

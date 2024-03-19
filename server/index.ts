@@ -4,6 +4,12 @@ import { ProxmoxClient } from './ProxmoxClient';
 import { PROXMOX_ADMIN_PASS, PROXMOX_ADMIN_USER, PROXMOX_ENV } from './constants';
 
 (async () => {
+  for (const event of ['uncaughtException', 'unhandledRejection']) {
+    process.on(event, e => {
+      console.error(e);
+    });
+  }
+
   log('Getting admin credentials...');
   const admin = await ProxmoxClient.admin();
 

@@ -109,7 +109,7 @@ export class ApiService {
 }
 
 interface ISignupRequestBody {
-  username: string;
+  userid: string;
   password: string;
   email: string;
   firstName: string;
