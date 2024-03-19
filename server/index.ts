@@ -1,7 +1,6 @@
 import { log } from 'console';
 import express, { Request, Response, json } from 'express';
 import { ProxmoxClient } from './ProxmoxClient';
-import { PROXMOX_ADMIN_PASS, PROXMOX_ADMIN_USER, PROXMOX_ENV } from './constants';
 
 (async () => {
   for (const event of ['uncaughtException', 'unhandledRejection']) {
@@ -122,15 +121,10 @@ import { PROXMOX_ADMIN_PASS, PROXMOX_ADMIN_USER, PROXMOX_ENV } from './constants
   app.post('/api/signup', async (req: Request, res: Response) => {
     const body = req.body;
 
-    const loginResponse = await ProxmoxClient.login(
-      `${PROXMOX_ADMIN_USER}@${PROXMOX_ENV}`,
-      PROXMOX_ADMIN_PASS
-    );
+    const client = await ProxmoxClient.admin();
 
     body.enable = 0;
     body.expire = 0;
-
-    const client = new ProxmoxClient(loginResponse);
 
     await client.createUser(body);
 

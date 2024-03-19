@@ -29,8 +29,8 @@ export class SignupComponent {
     userid: ['', Validators.required],
     password: ['', Validators.required],
     email: ['', Validators.required],
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
+    firstname: ['', Validators.required],
+    lastname: ['', Validators.required],
     comment: ['', Validators.required],
   });
   public loading = false;
