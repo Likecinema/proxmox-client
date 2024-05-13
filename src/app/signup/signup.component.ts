@@ -26,12 +26,9 @@ import { ApiService } from '../api.service';
 })
 export class SignupComponent {
   public readonly loginForm = this.fb.group({
-    userid: ['', Validators.required],
+    username: ['', Validators.required],
     password: ['', Validators.required],
     email: ['', Validators.required],
-    firstname: ['', Validators.required],
-    lastname: ['', Validators.required],
-    comment: ['', Validators.required],
   });
   public loading = false;
   public readonly isSubmitted = signal(false);

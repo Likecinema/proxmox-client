@@ -7,9 +7,7 @@ export class ApiService {
   public readonly isAdmin = signal(false);
   constructor() { }
   public async login(username: string, password: string) {
-    const response = await this.post<{
-      CSRFPreventionToken: string;
-    }>('/api/login', { username, password });
+    const response = await this.post<ISignInResponse>('/api/auth/signin', { username, password });
 
     if (!response?.CSRFPreventionToken) {
       throw new Error('Unauthorized');
@@ -43,22 +41,19 @@ export class ApiService {
   public async getRoles() {
     return await this.get<string[]>('/api/roles');
   }
-  public async getPermissions() {
-    return await this.get<{
-      isAdmin: boolean;
-    }>('/api/permissions');
+  public hasAdminRole() {
+    const ticket = this.getTicket();
+
+    return Boolean(ticket?.roles.includes('ROLE_ADMIN'));
   }
   public async signup(body: ISignupRequestBody) {
-    await this.post('/api/signup', body);
+    await this.post('/api/auth/signup', body);
   }
   public getTicket() {
     const ticketJson = localStorage.getItem('ticket');
 
     try {
-      return JSON.parse(ticketJson!) as {
-        ticket: string;
-        CSRFPreventionToken: string;
-      };
+      return JSON.parse(ticketJson!) as ISignInResponse;
     } catch { }
 
     return;
@@ -109,12 +104,17 @@ export class ApiService {
 }
 
 interface ISignupRequestBody {
-  userid: string;
+  username: string;
   password: string;
   email: string;
-  firstname: string;
-  lastname: string;
-  comment: string;
+}
+
+interface ISignInResponse {
+  CSRFPreventionToken: string;
+  clustername: null;
+  roles: Array<'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_MODERATOR'>;
+  ticket: string;
+  username: string;
 }
 
 export interface IUser {
