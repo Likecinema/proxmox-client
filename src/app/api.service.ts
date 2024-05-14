@@ -15,6 +15,15 @@ export class ApiService {
 
     this.setTicket(response);
   }
+  public async getRequests() {
+    return await this.get<IProxMoxUserRequest[]>('/api/user/vms');
+  }
+  public async createRequest(request: IProxMoxUserCreateRequest) {
+    return await this.post('/api/user/vm/create', request);
+  }
+  public async deleteRequest(id: number) {
+    return await this.delete(`/api/user/vm/delete?ids=${id}`);
+  }
   public async logout() {
     await this.get('/api/logout');
     this.remoteTicket();
@@ -58,8 +67,11 @@ export class ApiService {
 
     return;
   }
-  private setTicket(ticketResponse: { CSRFPreventionToken: string; }) {
+  private setTicket(ticketResponse: ISignInResponse) {
     localStorage.setItem('ticket', JSON.stringify(ticketResponse));
+
+    // Write cookie
+    document.cookie = `PVEAuthCookie=${ticketResponse.ticket}; path=/;`;
   }
   private async remoteTicket() {
     localStorage.removeItem('ticket');
@@ -115,6 +127,35 @@ interface ISignInResponse {
   roles: Array<'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_MODERATOR'>;
   ticket: string;
   username: string;
+}
+
+export interface IProxMoxUserRequest {
+  id: number;
+  vmDetails: {
+    vmId: null,
+    vmName: string;
+    memoryGb: number;
+    processors: number;
+    storageName: string;
+    storageGb: number;
+    template: string;
+  },
+  type: 'POST';
+  startDate: string;
+  endDate: string;
+  node: null;
+  repeat: number;
+  completed: boolean;
+  toBeRemoved: boolean;
+}
+
+export interface IProxMoxUserCreateRequest {
+  startDate: string;
+  endDate: string;
+  processors: number;
+  storage: number;
+  memory: number;
+  os: string;
 }
 
 export interface IUser {

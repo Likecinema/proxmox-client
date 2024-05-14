@@ -1,5 +1,6 @@
 <div class="flex flex-col shadow-md z-10 bg-white">
-  @for(item of navItems; track $index) {
+  @for(item of navItems; track $index) { @if(!item.requiresAdmin ||
+  (item.requiresAdmin && api.isAdmin())) {
   <span
     class="text-2xl w-full px-6 py-5 flex justify-center items-center cursor-pointer"
     nz-icon
@@ -8,7 +9,7 @@
     [routerLink]="item.link"
     routerLinkActive="active"
   ></span>
-  }
+  } }
   <span
     title="Logout"
     class="mt-auto text-2xl w-full p-6 cursor-pointer"

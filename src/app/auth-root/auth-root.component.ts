@@ -30,7 +30,7 @@ export class AuthRootComponent implements OnDestroy {
         label: 'Requests',
         icon: 'inbox',
         link: '/app/requests',
-        requiresAdmin: true
+        requiresAdmin: false
       }
     ];
   private readonly subscriptions: Subscription[] = [];
@@ -47,7 +47,7 @@ export class AuthRootComponent implements OnDestroy {
           if (isAdmin) {
             this.router.navigate(['/app/users']);
           } else {
-            this.router.navigate(['/app/home']);
+            this.router.navigate(['/app/requests']);
           }
         }
       })
