@@ -21,11 +21,17 @@ export class AuthRootComponent implements OnDestroy {
     requiresAdmin: boolean;
   }> = [
       {
-        label: 'Users',
-        icon: 'team',
-        link: '/app/users',
+        label: 'Dashboard',
+        icon: 'bar-chart',
+        link: '/app/dashboard',
         requiresAdmin: true
       },
+      // {
+      //   label: 'Users',
+      //   icon: 'team',
+      //   link: '/app/users',
+      //   requiresAdmin: true
+      // },
       {
         label: 'Requests',
         icon: 'inbox',
@@ -45,7 +51,7 @@ export class AuthRootComponent implements OnDestroy {
           const isAdmin = this.api.isAdmin();
 
           if (isAdmin) {
-            this.router.navigate(['/app/users']);
+            this.router.navigate(['/app/dashboard']);
           } else {
             this.router.navigate(['/app/requests']);
           }

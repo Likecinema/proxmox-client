@@ -1,46 +1,56 @@
-<div class="flex flex-row bg-white items-center p-3">
-  <span class="text-2xl font-bold">Requests</span>
-  <button
-    class="ml-auto"
-    nz-button
-    nzType="primary"
-    (click)="newRequest.set(getNewUserRequestObject())"
+<nz-layout class="h-full">
+  <nz-header
+    class="flex shrink-0 text-black bg-white shadow flex-row items-center"
+    ><h2 class="m-0">Requests</h2>
+    <button
+      class="ml-auto"
+      nz-button
+      nzType="primary"
+      (click)="newRequest.set(getNewUserRequestObject())"
+    >
+      Create
+    </button></nz-header
   >
-    Create
-  </button>
-</div>
-<nz-table #table [nzFrontPagination]="false" [nzData]="requests()">
-  <thead>
-    <tr>
-      <th>Start Date</th>
-      <th>End Date</th>
-      <th>Processors</th>
-      <th>Storage</th>
-      <th>Memory</th>
-      <th>OS</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let data of table.data">
-      @if(!data.toBeRemoved) {
-      <td>{{ data.startDate }}</td>
-      <td>{{ data.endDate }}</td>
-      <td>{{ data.vmDetails.processors }}</td>
-      <td>{{ data.vmDetails.storageGb }}</td>
-      <td>{{ data.vmDetails.memoryGb }}</td>
-      <td>{{ data.vmDetails.template }}</td>
-      <td>
-        <div class="flex flex-row gap-2">
-          <button nz-button nzDanger (click)="deleteRequestId.set(data.id)">
-            <span nz-icon nzType="delete"></span>
-          </button>
-        </div>
-      </td>
-      }
-    </tr>
-  </tbody>
-</nz-table>
+  <nz-content class="overflow-auto flex flex-col flex-grow p-3">
+    <nz-table
+      #table
+      [nzFrontPagination]="false"
+      [nzData]="requests()"
+      class="h-full"
+    >
+      <thead>
+        <tr>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Processors</th>
+          <th>Storage</th>
+          <th>Memory</th>
+          <th>OS</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of table.data">
+          @if(!data.toBeRemoved) {
+          <td>{{ data.startDate }}</td>
+          <td>{{ data.endDate }}</td>
+          <td>{{ data.vmDetails.processors }}</td>
+          <td>{{ data.vmDetails.storageGb }}</td>
+          <td>{{ data.vmDetails.memoryGb }}</td>
+          <td>{{ data.vmDetails.template }}</td>
+          <td>
+            <div class="flex flex-row gap-2">
+              <button nz-button nzDanger (click)="deleteRequestId.set(data.id)">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          </td>
+          }
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-content>
+</nz-layout>
 
 <nz-drawer
   [nzBodyStyle]="{ overflow: 'auto' }"

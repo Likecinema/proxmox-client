@@ -8,6 +8,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
@@ -30,7 +31,8 @@ import { ApiService, IProxMoxUserRequest } from '../api.service';
     NzDatePickerModule,
     NzInputModule,
     NzInputNumberModule,
-    NzModalModule
+    NzModalModule,
+    NzLayoutModule
   ],
   templateUrl: './requests.component.html',
   styleUrl: './requests.component.scss',

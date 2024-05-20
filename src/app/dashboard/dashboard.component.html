@@ -1,0 +1,45 @@
+<nz-layout class="h-full">
+  <nz-header class="flex flex-row shrink-0 items-center"
+    ><h2 class="m-0">Dashboard</h2></nz-header
+  >
+  <nz-content class="overflow-auto flex flex-col flex-grow">
+    <div
+      class="bg-transparent mx-[50px] my-4 grid m-3 gap-3 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]"
+    >
+      @for (node of nodeInfos(); track $index) {
+      <div class="node-card">
+        <div class="flex flex-row">
+          <b>{{ node.node }}</b>
+          <span class="ml-auto">
+            <small
+              >Mem: {{ (node.mem / 1024 / 1024 / 1024).toFixed(1) }}GB/{{
+                (node.maxmem / 1024 / 1024 / 1024).toFixed(1)
+              }}GB</small
+            >
+            |
+            <small>
+              Disk: {{ (node.disk / 1024 / 1024 / 1024).toFixed(1) }}GB/{{
+                (node.maxdisk / 1024 / 1024 / 1024).toFixed(1)
+              }}GB
+            </small></span
+          >
+        </div>
+        @if(nodeMetrics().get(node.node); as metrics) {
+        @if(getChartInfo(metrics); as info) {
+        <apx-chart
+          [series]="info.series"
+          [chart]="info.chart"
+          [xaxis]="info.xaxis"
+          [yaxis]="info.yaxis"
+          [stroke]="info.stroke"
+          [tooltip]="info.tooltip"
+          [dataLabels]="info.dataLabels"
+          [grid]="info.grid"
+          [legend]="info.legend"
+        ></apx-chart>
+        } }
+      </div>
+      }
+    </div>
+  </nz-content>
+</nz-layout>

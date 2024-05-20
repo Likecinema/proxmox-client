@@ -24,6 +24,18 @@ export class ApiService {
   public async deleteRequest(id: number) {
     return await this.delete(`/api/user/vm/delete?ids=${id}`);
   }
+  public async getClusterInfo() {
+    return await this.get('/api/admin/cluster');
+  }
+  public async getNodeInfo() {
+    return await this.get('/api/node/info') as INodeInfo[];
+  }
+  public async getNodeMetrics(nodeId: string) {
+    return await this.get(`/api/node/resources/${nodeId}/metrics?timeframe=hour`) as INodeMetric[];
+  }
+  public async getNodeResourceInfo(nodeId: string, resource: 'vm' | 'lxc') {
+    return await this.get(`/api/node/resources/${nodeId}/${resource}`);
+  }
   public async logout() {
     await this.get('/api/logout');
     this.remoteTicket();
@@ -169,3 +181,41 @@ export interface IUser {
   userid: string;
   roleid?: string;
 };
+
+export interface INodeMetric {
+  cpu: number;
+  'cpu%': string;
+  iowait: number;
+  'iowait%': string;
+  loadavg: number;
+  maxcpu: number;
+  memtotal: number;
+  memtotalGB: string;
+  memused: number;
+  memusedGB: string;
+  netin: number;
+  netout: number;
+  roottotal: number;
+  roottotalGB: string;
+  rootused: number;
+  rootusedGB: string;
+  swaptotal: number;
+  swapused: number;
+  time: string;
+}
+
+export interface INodeInfo {
+  cpu: number;
+  disk: number;
+  id: string;
+  level: string;
+  maxcpu: number;
+  maxdisk: number;
+  maxmem: number;
+  mem: number;
+  node: string;
+  ssl_fingerprint: string;
+  status: 'online' | 'offline' | 'error' | 'unknown';
+  type: string;
+  uptime: number;
+}

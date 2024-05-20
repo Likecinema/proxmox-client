@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthRootComponent } from './auth-root/auth-root.component';
 import { authGuardFn } from './authGuardFn';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RequestsComponent } from './requests/requests.component';
 import { SignupComponent } from './signup/signup.component';
@@ -25,6 +26,10 @@ export const routes: Routes = [
     canActivate: [authGuardFn],
     component: AuthRootComponent,
     children: [
+      {
+        path: 'dashboard',
+        component: DashboardComponent
+      },
       {
         path: 'users',
         component: UsersComponent

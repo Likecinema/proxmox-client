@@ -1,0 +1,22 @@
+nz-header {
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+  box-shadow: 0 1px 4px #00152914;
+}
+
+.node-card {
+  @apply w-full min-w-[250px] h-40 bg-white rounded shadow-sm py-2 px-3;
+}
+
+apx-chart {
+  @apply relative h-full w-full;
+
+  top: 2px;
+}
+
+::ng-deep {
+  .apexcharts-canvas > svg {
+    overflow: hidden;
+    border-radius: 7px;
+  }
+}
