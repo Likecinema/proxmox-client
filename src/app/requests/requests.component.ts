@@ -13,6 +13,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { ApiService, IProxMoxUserRequest } from '../api.service';
 
 @Component({
@@ -32,7 +33,8 @@ import { ApiService, IProxMoxUserRequest } from '../api.service';
     NzInputModule,
     NzInputNumberModule,
     NzModalModule,
-    NzLayoutModule
+    NzLayoutModule,
+    NzToolTipModule
   ],
   templateUrl: './requests.component.html',
   styleUrl: './requests.component.scss',
@@ -50,8 +52,8 @@ export class RequestsComponent implements OnInit {
     storage: [0, Validators.required],
   });
   public constructor(
+    public readonly api: ApiService,
     private readonly fb: FormBuilder,
-    private readonly api: ApiService
   ) { }
   public async ngOnInit() {
     this.loadRequests();

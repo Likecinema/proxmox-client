@@ -4,13 +4,13 @@
   >
   <nz-content class="overflow-auto flex flex-col flex-grow">
     <div
-      class="bg-transparent mx-[50px] my-4 grid m-3 gap-3 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]"
+      class="bg-transparent mx-[50px] my-4 grid m-3 gap-3 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]"
     >
       @for (node of nodeInfos(); track $index) {
       <div class="node-card">
         <div class="flex flex-row">
           <b>{{ node.node }}</b>
-          <span class="ml-auto">
+          <span class="ml-auto truncate">
             <small
               >Mem: {{ (node.mem / 1024 / 1024 / 1024).toFixed(1) }}GB/{{
                 (node.maxmem / 1024 / 1024 / 1024).toFixed(1)
@@ -25,19 +25,36 @@
           >
         </div>
         @if(nodeMetrics().get(node.node); as metrics) {
-        @if(getChartInfo(metrics); as info) {
-        <apx-chart
-          [series]="info.series"
-          [chart]="info.chart"
-          [xaxis]="info.xaxis"
-          [yaxis]="info.yaxis"
-          [stroke]="info.stroke"
-          [tooltip]="info.tooltip"
-          [dataLabels]="info.dataLabels"
-          [grid]="info.grid"
-          [legend]="info.legend"
-        ></apx-chart>
-        } }
+        <div [style.height.px]="120" class="block w-full">
+          @if(getChartInfo(metrics); as info) {
+          <apx-chart
+            [series]="info.series"
+            [chart]="info.chart"
+            [xaxis]="info.xaxis"
+            [yaxis]="info.yaxis"
+            [stroke]="info.stroke"
+            [tooltip]="info.tooltip"
+            [dataLabels]="info.dataLabels"
+            [grid]="info.grid"
+            [legend]="info.legend"
+          ></apx-chart>
+          }
+        </div>
+        }
+        <div
+          class="p-2 rounded bg-gray-100 mt-2 flex flex-row gap-2 flex-wrap h-[65px]"
+        >
+          @for(entity of getNodeEntities(node.node); track entity.id) {
+          <div
+            class="text-white cursor-default bg-emerald-700 text-center items-center justify-center flex flex-row rounded shrink-0 w-[30px] h-[20px] text-[10px]"
+            nz-tooltip
+            nzTooltipPlacement="bottom"
+            nzTooltipTitle="{{ entity | json }}"
+          >
+            {{ entity.type.slice(0, 4) }}
+          </div>
+          }
+        </div>
       </div>
       }
     </div>

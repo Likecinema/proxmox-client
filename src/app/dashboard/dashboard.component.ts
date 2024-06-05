@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, NgZone, effect, signal } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { ApiService, INodeInfo, INodeMetric } from '../api.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NzLayoutModule, NgApexchartsModule],
+  imports: [CommonModule, NzLayoutModule, NgApexchartsModule, NzToolTipModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -15,6 +16,8 @@ import { ApiService, INodeInfo, INodeMetric } from '../api.service';
 export class DashboardComponent {
   public readonly nodeInfos = signal<INodeInfo[]>([]);
   public readonly nodeMetrics = signal<Map<string, INodeMetric[]>>(new Map());
+  public readonly clusterInfos = signal<any>(null);
+  public readonly cache = new Map<any, any>();
   public constructor(
     private readonly api: ApiService,
     private readonly zone: NgZone
@@ -29,6 +32,7 @@ export class DashboardComponent {
       .then(r => console.log(r));
 
     this.loadNodeInfos();
+    this.loadClusterInfo();
 
     effect(() => {
       const nodeInfos = this.nodeInfos();
@@ -44,7 +48,17 @@ export class DashboardComponent {
       }
     });
   }
+  public getNodeEntities(node: string) {
+    return this.clusterInfos()?.filter((c: any) => c.node === node) || [];
+  }
   public getChartInfo(metrics: INodeMetric[]): ChartOptions {
+    const chartInfo = this.cache.get(metrics) || this.createChartInfo(metrics);
+
+    this.cache.set(metrics, chartInfo);
+
+    return chartInfo;
+  }
+  private createChartInfo(metrics: INodeMetric[]): ChartOptions {
     const opts = this.createChartOptions();
 
     opts.series[0].name = 'CPU';
@@ -57,6 +71,9 @@ export class DashboardComponent {
   }
   private loadNodeInfos() {
     this.api.getNodeInfo().then(nodeInfos => this.nodeInfos.set(nodeInfos));
+  }
+  private loadClusterInfo() {
+    this.api.getClusterInfo().then(clusterInfo => this.clusterInfos.set(clusterInfo));
   }
   private createChartOptions(): ChartOptions {
     return {

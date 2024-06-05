@@ -2,15 +2,38 @@
   <nz-header
     class="flex shrink-0 text-black bg-white shadow flex-row items-center"
     ><h2 class="m-0">Requests</h2>
-    <button
-      class="ml-auto"
-      nz-button
-      nzType="primary"
-      (click)="newRequest.set(getNewUserRequestObject())"
-    >
-      Create
-    </button></nz-header
-  >
+    <span class="ml-auto flex flex-row items-center gap-2">
+      @if(api.isAdmin()) {
+      <button
+        nz-button
+        nzType="default"
+        nz-tooltip
+        nzTooltipPlacement="bottom"
+        nzTooltipTitle="Attempt deployment to Promox for all requests in the database that are not yet completed."
+      >
+        Deploy requests
+        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+      </button>
+      <button
+        nz-button
+        nzType="default"
+        nz-tooltip
+        nzTooltipPlacement="bottom"
+        nzTooltipTitle="Resize all VMs in the range of 200 to 299 based on memory usage."
+      >
+        Resize VMs
+        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+      </button>
+      }
+      <button
+        nz-button
+        nzType="primary"
+        (click)="newRequest.set(getNewUserRequestObject())"
+      >
+        Create
+      </button>
+    </span>
+  </nz-header>
   <nz-content class="overflow-auto flex flex-col flex-grow p-3">
     <nz-table
       #table
