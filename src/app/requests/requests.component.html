@@ -89,7 +89,7 @@
   [nzVisible]="!!newRequest()"
   [nzTitle]="'Create Request'"
   [nzFooter]="footerTpl"
-  (nzOnClose)="newRequest.set(null)"
+  (nzOnClose)="resetForm()"
   nzWidth="50%"
 >
   <div *nzDrawerContent>
