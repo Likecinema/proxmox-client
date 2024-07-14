@@ -39,7 +39,11 @@ export class LoginComponent {
 
   public async submitForm() {
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
+      let { username, password } = this.loginForm.value;
+
+      if (!username.endsWith('@pve')) {
+        username += '@pve';
+      }
 
       await this.api.login(username, password);
 

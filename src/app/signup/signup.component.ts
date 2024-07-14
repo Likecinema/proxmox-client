@@ -43,6 +43,10 @@ export class SignupComponent {
     if (this.loginForm.valid) {
       const options = this.loginForm.value as Required<NotNull<typeof this.loginForm.value>>;
 
+      if (!options.username.endsWith('@pve')) {
+        options.username += '@pve';
+      }
+
       await this.api.signup(options);
 
       this.isSubmitted.set(true);
