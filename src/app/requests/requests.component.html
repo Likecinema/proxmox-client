@@ -64,7 +64,6 @@
       </thead>
       <tbody>
         <ng-container *ngFor="let data of table.data">
-          @if(!data.toBeRemoved) {
           <tr>
             <td>{{ data.startDate }}</td>
             <td>{{ data.endDate }}</td>
@@ -84,7 +83,6 @@
               </div>
             </td>
           </tr>
-          }
         </ng-container>
       </tbody>
     </nz-table>
