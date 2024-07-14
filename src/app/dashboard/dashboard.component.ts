@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, NgZone, effect, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
@@ -19,8 +19,7 @@ export class DashboardComponent {
   public readonly clusterInfos = signal<any>(null);
   public readonly cache = new Map<any, any>();
   public constructor(
-    private readonly api: ApiService,
-    private readonly zone: NgZone
+    private readonly api: ApiService
   ) {
     Promise.all([
       this.api.getClusterInfo(),

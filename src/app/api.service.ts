@@ -24,6 +24,9 @@ export class ApiService {
   public async deleteRequest(id: number) {
     return await this.delete(`/api/user/vm/delete?ids=${id}`);
   }
+  public async resetPassword(email: string) {
+    return await this.post('/api/auth/resetpassword', { email });
+  }
   public async getClusterInfo() {
     return await this.get('/api/admin/cluster');
   }

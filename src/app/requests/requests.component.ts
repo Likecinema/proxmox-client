@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
@@ -42,6 +42,7 @@ import { ApiService, IProxMoxUserRequest } from '../api.service';
 })
 export class RequestsComponent implements OnInit {
   public readonly requests = signal<IProxMoxUserRequest[]>([]);
+  public readonly undeletedRequests = computed(() => this.requests().filter(r => !r.toBeRemoved));
   public readonly newRequest = signal<IRequestForm | null>(null);
   public readonly deleteRequestId = signal<number | null>(null);
   public readonly selectedRequestForm = this.fb.group({

@@ -48,7 +48,7 @@
     <nz-table
       #table
       [nzFrontPagination]="false"
-      [nzData]="requests()"
+      [nzData]="undeletedRequests()"
       class="h-full"
     >
       <thead>
@@ -63,23 +63,29 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let data of table.data">
+        <ng-container *ngFor="let data of table.data">
           @if(!data.toBeRemoved) {
-          <td>{{ data.startDate }}</td>
-          <td>{{ data.endDate }}</td>
-          <td>{{ data.vmDetails.processors }}</td>
-          <td>{{ data.vmDetails.storageGb }}</td>
-          <td>{{ data.vmDetails.memoryGb }}</td>
-          <td>{{ data.vmDetails.template }}</td>
-          <td>
-            <div class="flex flex-row gap-2">
-              <button nz-button nzDanger (click)="deleteRequestId.set(data.id)">
-                <span nz-icon nzType="delete"></span>
-              </button>
-            </div>
-          </td>
+          <tr>
+            <td>{{ data.startDate }}</td>
+            <td>{{ data.endDate }}</td>
+            <td>{{ data.vmDetails.processors }}</td>
+            <td>{{ data.vmDetails.storageGb }}</td>
+            <td>{{ data.vmDetails.memoryGb }}</td>
+            <td>{{ data.vmDetails.template }}</td>
+            <td>
+              <div class="flex flex-row gap-2">
+                <button
+                  nz-button
+                  nzDanger
+                  (click)="deleteRequestId.set(data.id)"
+                >
+                  <span nz-icon nzType="delete"></span>
+                </button>
+              </div>
+            </td>
+          </tr>
           }
-        </tr>
+        </ng-container>
       </tbody>
     </nz-table>
   </nz-content>
