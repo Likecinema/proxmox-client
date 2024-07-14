@@ -24,8 +24,8 @@
             </small></span
           >
         </div>
-        @if(nodeMetrics().get(node.node); as metrics) {
         <div [style.height.px]="120" class="block w-full">
+          @if(nodeMetrics().get(node.node); as metrics) {
           @if(getChartInfo(metrics); as info) {
           <apx-chart
             [series]="info.series"
@@ -38,9 +38,8 @@
             [grid]="info.grid"
             [legend]="info.legend"
           ></apx-chart>
-          }
+          } }
         </div>
-        }
         <div
           class="p-2 rounded bg-gray-100 mt-2 flex flex-row gap-2 flex-wrap h-[65px]"
         >
