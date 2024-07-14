@@ -135,6 +135,12 @@ export class DashboardComponent {
         }
       },
       tooltip: {
+        y: {
+          formatter: (val: number) => (val * 100).toFixed(2) + '%'
+        },
+        x: {
+          format: 'yyyy-dd-MM HH:mm'
+        }
       },
       grid: {
         show: false, // Hides the grid lines,
