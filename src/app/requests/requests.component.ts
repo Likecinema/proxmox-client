@@ -65,16 +65,14 @@ export class RequestsComponent implements OnInit {
       startDate: request.dateRange![0],
       endDate: request.dateRange![1],
       memory: request.memory!,
-      os: request.os!,
+      os: request.os! || '',
       processors: request.processors!,
       storage: request.storage!
     });
 
     console.log(response);
 
-    this.selectedRequestForm.reset();
-
-    this.newRequest.set(null);
+    this.resetForm();
 
     await this.loadRequests();
   }
@@ -98,6 +96,10 @@ export class RequestsComponent implements OnInit {
     this.deleteRequestId.set(null);
 
     await this.loadRequests();
+  }
+  public resetForm() {
+    this.selectedRequestForm.reset();
+    this.newRequest.set(null);
   }
 }
 
