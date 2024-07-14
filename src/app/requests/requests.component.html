@@ -63,27 +63,21 @@
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let data of table.data">
-          <tr>
-            <td>{{ data.startDate }}</td>
-            <td>{{ data.endDate }}</td>
-            <td>{{ data.vmDetails.processors }}</td>
-            <td>{{ data.vmDetails.storageGb }}</td>
-            <td>{{ data.vmDetails.memoryGb }}</td>
-            <td>{{ data.vmDetails.template }}</td>
-            <td>
-              <div class="flex flex-row gap-2">
-                <button
-                  nz-button
-                  nzDanger
-                  (click)="deleteRequestId.set(data.id)"
-                >
-                  <span nz-icon nzType="delete"></span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+        <tr *ngFor="let data of table.data">
+          <td>{{ data.startDate }}</td>
+          <td>{{ data.endDate }}</td>
+          <td>{{ data.vmDetails.processors }}</td>
+          <td>{{ data.vmDetails.storageGb }}</td>
+          <td>{{ data.vmDetails.memoryGb }}</td>
+          <td>{{ data.vmDetails.template }}</td>
+          <td>
+            <div class="flex flex-row gap-2">
+              <button nz-button nzDanger (click)="deleteRequestId.set(data.id)">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </nz-table>
   </nz-content>
