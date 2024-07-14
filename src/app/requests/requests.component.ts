@@ -71,6 +71,8 @@ export class RequestsComponent implements OnInit {
 
     console.log(response);
 
+    this.selectedRequestForm.reset();
+
     this.newRequest.set(null);
 
     await this.loadRequests();
