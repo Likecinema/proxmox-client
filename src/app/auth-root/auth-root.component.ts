@@ -26,17 +26,29 @@ export class AuthRootComponent implements OnDestroy {
         link: '/app/dashboard',
         requiresAdmin: true
       },
-      // {
-      //   label: 'Users',
-      //   icon: 'team',
-      //   link: '/app/users',
-      //   requiresAdmin: true
-      // },
+      {
+        label: 'Users',
+        icon: 'team',
+        link: '/app/users',
+        requiresAdmin: true
+      },
       {
         label: 'Requests',
         icon: 'inbox',
         link: '/app/requests',
         requiresAdmin: false
+      },
+      {
+        label: 'Jobs',
+        icon: 'cloud-server',
+        link: '/app/jobs',
+        requiresAdmin: false,
+      },
+      {
+        label: 'Schedule',
+        icon: 'calendar',
+        link: '/app/schedule',
+        requiresAdmin: true,
       }
     ];
   private readonly subscriptions: Subscription[] = [];

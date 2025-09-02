@@ -1,0 +1,53 @@
+<nz-modal [(nzVisible)]="isVisible" nzTitle="User Details" nzWidth="80%" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" (nzAfterClose)="nzAfterClose()">
+    <ng-container *nzModalContent>
+      <ul nz-menu nzMode="horizontal" (nzClick)="handleMenuChange()">
+        <li nz-menu-item [nzSelected]="isJobs">
+         Jobs
+        </li>
+        <li nz-menu-item [nzSelected]="isJobs===false">
+          Requests
+        </li>
+        </ul>
+            <nz-spin *ngIf="isLoaded === false" nzSimple class="modal-spin"></nz-spin>
+            <nz-table *ngIf="isLoaded" #table [nzScroll]="{x: '300px'}" nzSize="default" [nzData]="data">
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>Job Id</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Timestamp</th>
+                  <th>options</th>
+                  <th>
+                  <nz-input-group [nzSuffix]="inputClearTpl">
+                    <input type="text" nz-input [(ngModel)]="searchValue" placeholder="Search" (input)="search()" nzTooltipPlacement="bottom" />
+                  </nz-input-group>
+                  <ng-template #inputClearTpl>
+                    
+                    @if (searchValue) {
+                      <span
+                        nz-icon
+                        class="ant-input-clear-icon"
+                        nzTheme="fill"
+                        nzType="close-circle"
+                        (click)="clearSearch()"
+                      ></span>
+                    }
+                  </ng-template></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of table.data">
+                  <td>{{ data[0] }}</td>
+                  <td>{{ data[1] }}</td>
+                  <td>{{ data[2] }}</td>
+                  <td>{{ data[3] }}</td>
+                  <td>{{ data[4] }}</td>
+                  <td>{{ data[5] }}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </nz-table>
+    </ng-container>
+
+</nz-modal>

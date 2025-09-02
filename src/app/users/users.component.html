@@ -22,7 +22,21 @@
       <th>Realm Type</th>
       <th>Role ID</th>
       <th>Comment</th>
-      <th></th>
+      <th>     <nz-input-group [nzSuffix]="inputClearTpl">
+        <input type="text" nz-input nz-tooltip [(ngModel)]="searchValue" placeholder="Search" (input)="search()" nzTooltipTrigger="focus" nzTooltipPlacement="bottom" [nzTooltipTitle]="tooltipText" />
+      </nz-input-group>
+      <ng-template #inputClearTpl>
+        
+        @if (searchValue) {
+          <span
+            nz-icon
+            class="ant-input-clear-icon"
+            nzTheme="fill"
+            nzType="close-circle"
+            (click)="clearSearch()"
+          ></span>
+        }
+      </ng-template></th>
     </tr>
   </thead>
   <tbody>
@@ -44,12 +58,24 @@
           <button nz-button nzDanger (click)="deleteUser(data.userid)">
             <span nz-icon nzType="delete"></span>
           </button>
+          <button nz-button (click)="viewJobs(data.userid)">
+            <span nz-icon nzType="unordered-list"></span>
+          </button>
         </div>
       </td>
     </tr>
   </tbody>
 </nz-table>
 }
+<nz-drawer
+[nzBodyStyle]="{overflow: 'auto'}"
+[nzMaskClosable]="true"
+[nzVisible]="!!selectedUser()"
+[nzTitle]="'itemList'"
+[nzFooter]="footerTpl"
+(nzOnClose)="users.set(null)"
+>
+</nz-drawer>
 
 <nz-drawer
   [nzBodyStyle]="{ overflow: 'auto' }"
@@ -137,3 +163,5 @@
     </div>
   </ng-template>
 </nz-drawer>
+<router-outlet></router-outlet>
+  

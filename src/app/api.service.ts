@@ -1,4 +1,6 @@
 import { Injectable, signal } from '@angular/core';
+import { INodeInfo, INodeMetric, IProxMoxUserCreateRequest, IProxMoxUserRequest, ISignInResponse, ISignupRequestBody, IUploadExecutable, IUser, IUserJobs } from './interfaces';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +10,6 @@ export class ApiService {
   constructor() { }
   public async login(username: string, password: string) {
     const response = await this.post<ISignInResponse>('/api/auth/signin', { username, password });
-
     if (!response?.CSRFPreventionToken) {
       throw new Error('Unauthorized');
     }
@@ -16,7 +17,12 @@ export class ApiService {
     this.setTicket(response);
   }
   public async getRequests() {
-    return await this.get<IProxMoxUserRequest[]>('/api/user/vms');
+    const req = await this.get<IProxMoxUserRequest[]>('/api/user/vms');
+    return req;
+  }
+
+  public async createJob(req: {username: string, status: string, priority: number, options: any, additionalOptions: any}) {
+    return await this.post("/spark-job", req, true)
   }
   public async createRequest(request: IProxMoxUserCreateRequest) {
     return await this.post('/api/user/vm/create', request);
@@ -59,6 +65,62 @@ export class ApiService {
   public async getUsers() {
     return await this.get<IUser[]>('/api/users');
   }
+
+  public async deleteJob(id:string) {
+    return await this.delete(`/spark-job/${id}`, true)
+  }
+
+  public async getJob(jobid:string) {
+    return await this.get(`/spark-job/${jobid}`, true)
+  }
+
+  public async updateJob(job: IUserJobs) {
+    this.put(`/spark-job/${job.id}`, job, true)
+  }
+
+  public async getUserJobs(userid?: string) {
+    let res;
+    if (this.isAdmin()) {
+      res = res = this.get<IUserJobs[]>(`/spark-job`, true);
+    }
+    else if (userid) {
+      res = this.get<IUserJobs[]>(`/spark-job/${userid}`, true) 
+    }
+    else {
+      res = this.get<IUserJobs[]>(`/spark-job`, true);
+    }
+    return res;
+  }
+
+  public async uploadJobExecutable(data: any) {
+    const ticket = this.getTicket();
+    if (!ticket) {
+      console.warn("no ticket, can't upload");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("spark_exe", data);
+    formData.append("user", `${localStorage.getItem("username")}`);
+    const headers = new Headers();
+    headers.append("CSRFPreventionToken", ticket.CSRFPreventionToken);
+    headers.append("Ticket", ticket.ticket);
+    headers.append
+    const res = await fetch('/upload_executable', {
+      method: "POST",
+      body: formData,
+      headers: headers,
+    });
+    if (!res.ok) {
+      console.error("upload result not okay");
+      return;
+    }
+    return res.json()
+  }
+
+  public async deleteExecutable(filename:string) {
+    return await this.delete(`upload_executable/${filename}`, true)
+  }
+
   public async deleteUser(userid: string) {
     await this.delete(`/api/users/${userid}`);
   }
@@ -84,31 +146,43 @@ export class ApiService {
   }
   private setTicket(ticketResponse: ISignInResponse) {
     localStorage.setItem('ticket', JSON.stringify(ticketResponse));
-
+    localStorage.setItem('username',JSON.stringify(ticketResponse.username));
     // Write cookie
     document.cookie = `PVEAuthCookie=${ticketResponse.ticket}; path=/;`;
   }
   private async remoteTicket() {
     localStorage.removeItem('ticket');
+    localStorage.removeItem('username');
   }
-  private async post<T>(url: string, body: any) {
+  private async post<T>(url: string, body: any, useTicket: boolean = false, headers = {}) {
     return await this.request<T>(url, {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...headers,
       }
-    });
+    }, useTicket);
   }
-  private async get<T>(url: string) {
-    return await this.request<T>(url);
+  private async get<T>(url: string, useTicket = false) {
+    return await this.request<T>(url,undefined, useTicket);
   }
-  private async delete<T>(url: string) {
+  private async delete<T>(url: string, useTicket = false) {
     return await this.request<T>(url, {
       method: 'DELETE'
-    });
+    }, useTicket);
   }
-  private async request<T>(url: string, init?: RequestInit | undefined) {
+
+  private async put<T>(url: string, data: any, useTicket = false) {
+      return this.request(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(data),
+      })
+  }
+  private async request<T>(url: string, init?: RequestInit | undefined, useTicket = false) {
     const ticket = this.getTicket();
 
     if (ticket) {
@@ -118,107 +192,18 @@ export class ApiService {
       Object.assign(init.headers, {
         CSRFPreventionToken: ticket.CSRFPreventionToken,
       });
+      if (useTicket) {
+        Object.assign(init.headers, 
+          {Ticket: ticket.ticket}
+        )
+      }
     }
 
     const result = await fetch(url, init);
-
     if (!result.ok) {
       throw result;
     }
 
     return await result.json() as T;
   }
-}
-
-interface ISignupRequestBody {
-  username: string;
-  password: string;
-  email: string;
-}
-
-interface ISignInResponse {
-  CSRFPreventionToken: string;
-  clustername: null;
-  roles: Array<'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_MODERATOR'>;
-  ticket: string;
-  username: string;
-}
-
-export interface IProxMoxUserRequest {
-  id: number;
-  vmDetails: {
-    vmId: null,
-    vmName: string;
-    memoryGb: number;
-    processors: number;
-    storageName: string;
-    storageGb: number;
-    template: string;
-  },
-  type: 'POST';
-  startDate: string;
-  endDate: string;
-  node: null;
-  repeat: number;
-  completed: boolean;
-  toBeRemoved: boolean;
-}
-
-export interface IProxMoxUserCreateRequest {
-  startDate: string;
-  endDate: string;
-  processors: number;
-  storage: number;
-  memory: number;
-  os: string;
-}
-
-export interface IUser {
-  comment?: string;
-  email: string;
-  enable: 0 | 1;
-  expire: number;
-  firstname: string;
-  lastname: string;
-  'realm-type': string;
-  userid: string;
-  roleid?: string;
-};
-
-export interface INodeMetric {
-  cpu: number;
-  'cpu%': string;
-  iowait: number;
-  'iowait%': string;
-  loadavg: number;
-  maxcpu: number;
-  memtotal: number;
-  memtotalGB: string;
-  memused: number;
-  memusedGB: string;
-  netin: number;
-  netout: number;
-  roottotal: number;
-  roottotalGB: string;
-  rootused: number;
-  rootusedGB: string;
-  swaptotal: number;
-  swapused: number;
-  time: string;
-}
-
-export interface INodeInfo {
-  cpu: number;
-  disk: number;
-  id: string;
-  level: string;
-  maxcpu: number;
-  maxdisk: number;
-  maxmem: number;
-  mem: number;
-  node: string;
-  ssl_fingerprint: string;
-  status: 'online' | 'offline' | 'error' | 'unknown';
-  type: string;
-  uptime: number;
 }

@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/cor
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexGrid, ApexLegend, ApexPlotOptions, ApexStroke, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { ApiService, INodeInfo, INodeMetric } from '../api.service';
+import { ApiService } from '../api.service';
+import { INodeInfo, INodeMetric } from '../interfaces';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +29,6 @@ export class DashboardComponent {
       this.api.getNodeResourceInfo('node90', 'vm'),
       this.api.getNodeResourceInfo('node90', 'lxc')
     ])
-      .then(r => console.log(r));
 
     this.loadNodeInfos();
     this.loadClusterInfo();
@@ -62,7 +62,7 @@ export class DashboardComponent {
 
     opts.series[0].name = 'CPU';
     opts.series[0].color = '#008ffb';
-    opts.series[0].data = metrics.map(m => m.cpu);
+    opts.series[0].data = metrics.map(m => Number(m["cpu%"]));
     opts.xaxis.categories = metrics.map(m => m.time);
     opts.yaxis.min = 0;
 

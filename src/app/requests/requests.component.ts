@@ -14,7 +14,9 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { ApiService, IProxMoxUserRequest } from '../api.service';
+import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { ApiService } from '../api.service';
+import { IProxMoxUserRequest } from '../interfaces';
 
 @Component({
   selector: 'app-requests',
@@ -34,24 +36,39 @@ import { ApiService, IProxMoxUserRequest } from '../api.service';
     NzInputNumberModule,
     NzModalModule,
     NzLayoutModule,
-    NzToolTipModule
+    NzToolTipModule,
+    NzTimePickerModule,
   ],
   templateUrl: './requests.component.html',
   styleUrl: './requests.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RequestsComponent implements OnInit {
+  private defaultRequests: IProxMoxUserRequest[] = [];
   public readonly requests = signal<IProxMoxUserRequest[]>([]);
   public readonly undeletedRequests = computed(() => this.requests().filter(r => !r.toBeRemoved));
   public readonly newRequest = signal<IRequestForm | null>(null);
   public readonly deleteRequestId = signal<number | null>(null);
+  public readonly disabledDates = (date: Date) => date < new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1)
   public readonly selectedRequestForm = this.fb.group({
-    dateRange: [undefined, Validators.required],
+    dateRange: this.fb.control<undefined | Date[]>(undefined, [Validators.required]),
     memory: [0, Validators.required],
     os: ['', Validators.required],
     processors: [0, Validators.required],
     storage: [0, Validators.required],
+    repeat:this.fb.control<number[]>([], [Validators.nullValidator]),
+    timeFrom: [new Date(), Validators.required],
+    timeTo: [new Date(), Validators.required],
   });
+  public readonly daysList = [
+    {value: 0, text: "Sunday"},
+    {value: 1, text: "Monday"},
+    {value: 2, text: "Tuesday"},
+    {value: 3, text: "Wednesday"},
+    {value: 4, text: "Thursday"},
+    {value: 5, text: "Friday"},
+    {value: 6, text: "Saturday"},
+  ]
   public constructor(
     public readonly api: ApiService,
     private readonly fb: FormBuilder,
@@ -60,17 +77,37 @@ export class RequestsComponent implements OnInit {
     this.loadRequests();
   }
   public async save() {
+    let start = 0;
+    let end = (60*60*24) - 1 //seconds
     const request = this.selectedRequestForm.value;
-    const response = await this.api.createRequest({
-      startDate: request.dateRange![0],
-      endDate: request.dateRange![1],
+    if (!request?.repeat?.length) {
+      const secondsStart = request.timeFrom?.getSeconds() || 0
+      const minutesStart = request.timeFrom?.getMinutes() || 0;
+      const hoursStart = request.timeFrom?.getHours() || 0;
+      const secondsEnd = request.timeTo?.getSeconds() || 0;
+      const minutesEnd = request.timeTo?.getMinutes() || 0;
+      const hoursEnd = request.timeTo?.getHours() || 0;
+      start = secondsStart + (minutesStart * 60) + (hoursStart * 60 * 60);
+      end = secondsEnd + (minutesEnd * 60 ) + (hoursEnd * 60 * 60);
+      console.log("here");
+    }
+    const startDate = new Date(request.dateRange![0]);
+    startDate.setHours(0, 0, start, 0);
+    const endDate = new Date(request.dateRange![1]);
+    endDate.setHours(0, 0, end, 0);
+    this.selectedRequestForm.get("dateRange")?.setValue([startDate, endDate])
+    await this.api.createRequest({
+      startDate: new Date(this.selectedRequestForm.value.dateRange![0]).toISOString(),
+      endDate: this.selectedRequestForm.value.dateRange![1].toISOString(),
+      repeat: request.repeat!,
+      timeFrom: start!,
+      timeTo: end!,
       memory: request.memory!,
       os: request.os! || '',
       processors: request.processors!,
       storage: request.storage!
     });
 
-    console.log(response);
 
     this.resetForm();
 
@@ -87,7 +124,7 @@ export class RequestsComponent implements OnInit {
   }
   public async loadRequests() {
     const requests = await this.api.getRequests();
-
+    this.defaultRequests = requests
     this.requests.set(requests);
   }
   public async deleteRequest(id: number) {
@@ -98,8 +135,33 @@ export class RequestsComponent implements OnInit {
     await this.loadRequests();
   }
   public resetForm() {
+    console.log(this.selectedRequestForm);
     this.selectedRequestForm.reset();
     this.newRequest.set(null);
+  }
+
+  public sortBy(event: any, key: string) {
+    let requests = this.requests().slice()
+    if (event === "ascend") {
+      requests.sort((a: any, b: any) => {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+        console.log("what")
+        return 0;
+      });
+    }
+    else if (event === "descend") {
+      requests.sort((a: any, b: any) => {
+        if (!b[key] || !a[key]) return 0;
+        if (a[key] < b[key]) return 1;
+        if (a[key] > b[key]) return -1;
+        return 0;
+      });
+    }
+    else {
+      requests = this.defaultRequests;
+    }
+    this.requests.set(requests);
   }
 }
 

@@ -1,0 +1,89 @@
+
+<nz-layout class="h-full">
+  <nz-header
+    class="flex shrink-0 text-black bg-white shadow flex-row items-center"
+    ><h2 class="m-0">Requests</h2>
+    <span class="ml-auto flex flex-row items-center gap-2">
+        <button
+          nz-button
+          nzType="default"
+          nz-tooltip
+          nzTooltipPlacement="bottom"
+          nzTooltipTitle="Toggle being able to edit/move events"
+          (click)="toggleEditableEvents()"
+        >
+          Toggle editable events
+          <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+        </button>
+          <button nz-button nz-dropdown
+          [nzDropdownMenu]="dropDownMenu"
+          nzTrigger="click"
+          nzType="default"
+          >
+            Automatic Schedule
+          </button>
+          <nz-dropdown-menu #dropDownMenu>
+            <ul nz-menu>
+              <li nz-menu-item center>
+               Job Hours: <nz-input-number [(ngModel)]="jobHours" (click)="stopDropdownHide($event)" nz-tooltip="Estimated Hours per job"/>
+              </li>
+              <li nz-menu-item>
+                Hours for retry: <nz-input-number [(ngModel)]="retryHours" (click)="stopDropdownHide($event)" nz-tooltip="If there's no capacity for this time, retry after X hours"/>
+               </li>
+               <li nz-menu-item>
+                 <button type="button" nz-button (click)="autoSchedule(jobHours, retryHours)" class="w-32">Schedule</button>
+                </li>
+                <li nz-menu-item nzDisabled="true">
+                 Pending Jobs: {{getPendingJobs().length}}
+                </li>
+            </ul>
+          </nz-dropdown-menu>
+          <nz-select class="w-32" [(ngModel)]="activeNode" (ngModelChange)="showNodeRequests($event)" nzPlaceHolder="Select node">
+            @for(node of nodes; track node.id) {
+            <nz-option nzValue={{node.id}} nzLabel={{node.id}}></nz-option>
+            }
+          </nz-select>
+        <button
+          nz-button
+          nzType="default"
+          nz-tooltip
+          nzTooltipPlacement="bottom"
+          nzTooltipTitle="Save changes"
+          [disabled]="!editedEvents().length"
+          (click)="updateEvents()">
+          Save
+          <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+        </button>
+    </span>
+  </nz-header>
+    <nz-content class="overflow-auto flex flex-col flex-grow p-3">
+        <full-calendar #calendar [options]="calendarOptions">
+          <ng-template #slotLabelContent let-arg>
+            <div [ngStyle]="{'color': '#1890ff', 'fontSize': '15px', 'fontWeight': '525'}">{{ arg.text }}</div>
+          </ng-template>
+        </full-calendar>
+    </nz-content>
+    <nz-modal [nzFooter]="null" nzTitle="Details" [nzVisible]="selectedEvent()" nzWidth="50em" (nzOnCancel)="selectedEvent.set(undefined)" [nzBodyStyle]='{"overflowY": "auto", "maxHeight": "calc(100vh - 200px)" }'>
+      <ng-container *nzModalContent >
+        <nz-table
+        #table
+        [nzFrontPagination]="false"
+        [nzData]="selectedEvent()"
+      >
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of table.data">
+            <td>{{ item.key }}</td>
+            <td>{{ item.value }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+      </ng-container>
+    </nz-modal>
+</nz-layout>

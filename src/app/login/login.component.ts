@@ -46,7 +46,6 @@ export class LoginComponent {
       }
 
       await this.api.login(username, password);
-
       this.router.navigate(['/app']);
     }
   }

@@ -1,5 +1,7 @@
 import { Request } from 'express';
 import { PROXMOX_ADMIN_PASS, PROXMOX_ADMIN_USER, PROXMOX_ENV, PROXMOX_HOST } from './constants';
+import { failFallback } from './mockUtils/overrides';
+import { getACL, getAdmin, getAllUsers, getLogin, getRoles, getUser } from './mockUtils/fakeProxmoxHost';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -10,13 +12,15 @@ export class ProxmoxClient {
       csrfToken: req.get('CSRFPreventionToken') as string,
     });
   }
+  @failFallback("cant get admin", getAdmin())
   public static async admin() {
     const response = await this.login(`${PROXMOX_ADMIN_USER}@${PROXMOX_ENV}`, PROXMOX_ADMIN_PASS);
-
     return new ProxmoxClient(response);
   }
+
+  @failFallback("can't login", getLogin())
   public static async login(username: string, password: string) {
-    const response = await fetch(PROXMOX_HOST + '/api2/json/access/ticket', {
+    const response:any = await fetch(PROXMOX_HOST + '/api/auth/signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,15 +30,18 @@ export class ProxmoxClient {
         password,
       }),
     }).then(response => response.json() as Promise<{
-      data: {
         CSRFPreventionToken: string;
+        clustername: null;
+        roles: Array<'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_MODERATOR'>;
         ticket: string;
-      };
+        username: string;
     }>);
-
     return {
-      ticket: response.data.ticket,
-      csrfToken: response.data.CSRFPreventionToken,
+      ticket: response.ticket,
+      csrfToken: response.CSRFPreventionToken,
+      clustername: response.clustername,
+      roles: response.roles,
+      username: response.username,
     };
   }
   private static getTicketFromCookie(cookie: string) {
@@ -42,16 +49,22 @@ export class ProxmoxClient {
   }
   private readonly serviceUrl = PROXMOX_HOST;
   public constructor(private readonly options: IProxmoxClientOptions) { }
+
+  @failFallback("can't get roles", getRoles())
   public async getRoles() {
     return await this.get<{
       data: Array<{ roleid: string }>;
     }>('/api2/json/access/roles');
   }
+
+  @failFallback("can't get users", getAllUsers())
   public async getUsers() {
     return await this.get<{
       data: IListedUser[];
     }>('/api2/json/access/users');
   }
+
+  @failFallback("can't get user", getUser())
   public async getUser(userid: string) {
     if (!userid.includes('@')) {
       userid += `@${PROXMOX_ENV}`;
@@ -61,11 +74,15 @@ export class ProxmoxClient {
       data: IUserInfo;
     }>(`/api2/json/access/users/${userid}`);
   }
+
+  @failFallback("can't get ACL", getACL())
   public async getACL() {
     return await this.get<{
       data: IACL[];
     }>('/api2/json/access/acl');
   }
+
+  @failFallback("can't create user")
   public async createUser(user: {
     userid: string;
     password: string;
@@ -81,9 +98,13 @@ export class ProxmoxClient {
 
     return await this.post('/api2/json/access/users', user);
   }
+
+  @failFallback("cant delete user")
   public async deleteUser(userid: string) {
     return await this.delete(`/api2/json/access/users/${userid}`);
   }
+
+  @failFallback("can't update user")
   public async updateUser(userid: string, user: {
     password: string;
     email: string;
@@ -94,6 +115,7 @@ export class ProxmoxClient {
   }) {
     return await this.put(`/api2/json/access/users/${userid}`, user);
   }
+
   private async get<T>(path: string) {
     return await this.request<T>(path, {
       method: 'GET',
@@ -125,8 +147,12 @@ export class ProxmoxClient {
         'CSRFPreventionToken': this.options.csrfToken,
         ...options.headers,
       },
-    });
-
+    }).catch((e) => {
+      return undefined;
+  });
+  if (!response) {
+      return Promise.reject() as T;
+  };
     return await response.json() as T;
   }
 }

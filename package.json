@@ -6,7 +6,11 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "install-server": "cd server && npm i",
+    "run-server": "nodemon server/index.ts --exec \"npx ts-node server/index.ts\"",
+    "run-mockserver": "nodemon mockProxmoxHost.js",
+    "run-backend": "concurrently \" npm run run-server\" \"npm run run-mockserver\""
   },
   "private": true,
   "dependencies": {
@@ -18,11 +22,14 @@
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
+    "@fullcalendar/angular": "^6.1.16",
+    "@fullcalendar/core": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15",
     "apexcharts": "^3.49.1",
-    "concurrently": "^8.2.2",
     "ng-apexcharts": "^1.10.0",
     "ng-zorro-antd": "^17.1.0",
-    "nodemon": "^3.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
@@ -33,14 +40,19 @@
     "@angular/compiler-cli": "^17.0.0",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.4.17",
+    "concurrently": "^9.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "nodemon": "^3.1.7",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "~5.2.2"
   }
 }

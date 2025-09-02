@@ -6,6 +6,9 @@ import { LoginComponent } from './login/login.component';
 import { RequestsComponent } from './requests/requests.component';
 import { SignupComponent } from './signup/signup.component';
 import { UsersComponent } from './users/users.component';
+import { UserMenuComponent } from './user-menu/user-menu.compoment';
+import { JobsComponent } from './jobs/jobs.component';
+import { SchedulerComponent } from './scheduler/scheduler.component';
 
 export const routes: Routes = [
   {
@@ -32,11 +35,31 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersComponent
+        component: UsersComponent,
+        children: [
+          {
+            path: ':id/jobs',
+            canActivate: [authGuardFn],
+            component: UserMenuComponent,
+          },
+          {
+            path: ':id/requests',
+            canActivate: [authGuardFn],
+            component: UserMenuComponent
+          }
+        ]
       },
       {
         path: 'requests',
         component: RequestsComponent
+      },
+      {
+        path: 'jobs',
+        component: JobsComponent,
+      },
+      {
+        path: 'schedule',
+        component: SchedulerComponent,
       }
     ]
   },

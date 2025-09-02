@@ -1,6 +1,19 @@
 {
-  "/api": {
-    "target": "http://57.153.80.217:8080",
-    "secure": false
+  "/api": {        
+    "target": "http://127.0.0.1:8888",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {"^/api" : "/api"}
+  },
+  "/spark-job": {
+    "target": "http://127.0.0.1:8888",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {"^/spark-job": "/spark-job"}
+  },
+  "/upload_executable": {
+    "target": "http://127.0.0.1:8888",
+    "secure": false,
+    "changeOrigin": true
   }
 }

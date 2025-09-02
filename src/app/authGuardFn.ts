@@ -8,6 +8,5 @@ export const authGuardFn: CanActivateFn = async (
   const api = inject(ApiService);
 
   api.isAdmin.set(api.hasAdminRole());
-
   return Boolean(api.getTicket()) || router.parseUrl('/login');
 };

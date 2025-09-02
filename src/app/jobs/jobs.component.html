@@ -1,0 +1,209 @@
+<nz-layout class="h-full">
+    <nz-header
+      class="flex shrink-0 text-black bg-white shadow flex-row items-center"
+      ><h2 class="m-0">Jobs</h2>
+      <span class="ml-auto flex flex-row items-center gap-2">
+        <button
+          nz-button
+          nzType="primary"
+          (click)="selectedJob.set(getNewJobObject())"
+        >
+          Create
+        </button>
+      </span>
+    </nz-header>
+    <nz-content class="overflow-auto flex flex-col flex-grow p-3">
+      <nz-table
+        #table
+        [nzFrontPagination]="false"
+        [nzData]="visibleJobs()"
+        class="h-full w-full"
+      >
+        <thead>
+          <tr>
+            <th [nzSortFn]=true (nzSortOrderChange)="sortBy($event, 'id')">Id</th>
+            <th [nzSortFn]=true (nzSortOrderChange)="sortBy($event, 'status')">Status</th>
+            <th [nzSortFn]=true (nzSortOrderChange)="sortBy($event, 'user')">Username</th>
+            <th [nzSortFn]=true (nzSortOrderChange)="sortBy($event, 'priority')">Priority</th>
+            <th [nzSortFn]=true (nzSortOrderChange)="sortBy($event, 'timestamp')">Timestamp</th>
+            <th>Job options</th>
+            <th>
+              <div>
+                <nz-switch nzSize="small" [ngModel]="finishedJobs()" (ngModelChange)="finishedJobs.set($event)"></nz-switch> Finished
+              </div>
+              <div>
+                <nz-switch nzSize="small" [ngModel]="pendingJobs()" (ngModelChange)="pendingJobs.set($event)"></nz-switch> Pending
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of table.data">
+            <td>{{ data.id }}</td>
+            <td>{{ data.status }}</td>
+            <td>{{ data.user }}</td>
+            <td>{{ data.priority }}</td>
+            <td>{{ data.timestamp }}</td>
+            <td>{{ stringifyOptions(data.options) }}</td>
+            <td>
+              <div class="flex flex-row gap-2">
+                <button nz-button nzDanger (click)="deleteRequestId.set(data.id ? data.id : null)">
+                  <span nz-icon nzType="delete"></span>
+                </button>
+                <button nz-button (click)="selectedJob.set(data)">
+                  <span nz-icon nzType="edit"></span>
+                </button>
+                <button nz-button nz-tooltip="Execute job" [disabled]="data.status === 'finished'" (click)="executeJob(data)">
+                  <span nz-icon nzType="play-square" nzTheme="outline"></span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+  
+  <nz-drawer
+    [nzBodyStyle]="{ overflow: 'auto' }"
+    [nzMaskClosable]="true"
+    [nzVisible]="!!selectedJob()"
+    [nzTitle]="'Create Job'"
+    [nzFooter]="footerTpl"
+    (nzOnClose)="resetForm()"
+    nzWidth="50%"
+  >
+    <div *nzDrawerContent>
+      <form
+        nz-form
+        [formGroup]="selectedRequestForm"
+        (ngSubmit)="save()"
+        class="bg-white shadow-md rounded-lg p-6"
+      >
+        <nz-form-item>
+          <nz-form-label nzRequired>Deploy mode</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="deployMode">
+              <nz-option
+        *ngFor="let option of modeOptions"
+        [nzValue]="option"
+        [nzLabel]="option">
+      </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Name</nz-form-label>
+          <nz-form-control>
+              <input nz-input formControlName="name" class="inline-block w-32" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Class</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="class" class="inline-block w-32" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Instances</nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              formControlName="instances"
+              [nzMin]="0"
+              [nzStep]="1"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Cores</nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              formControlName="cores"
+              [nzMin]="0"
+              [nzStep]="1"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Memory</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="memory">
+              <nz-option
+        *ngFor="let option of memoryOptions"
+        [nzValue]="option"
+        [nzLabel]="option + ' MB'">
+      </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Image</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="image" class="inline-block w-32" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Hostname</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="hostname" class="inline-block w-32" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Service account name</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="serviceAccountName" class="inline-block w-32" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Executable path</nz-form-label>
+          <nz-form-control>
+            <ng-container *ngIf="selectedRequestForm.controls.executablePath.value; else placeholder">
+              {{ selectedRequestForm.controls.executablePath.value }}
+            </ng-container>
+            <ng-template #placeholder>
+              <span class="placeholder-text">Waiting for upload...</span>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Executable file</nz-form-label>
+          <nz-form-control>
+            <nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="handleFile" nzMultiple="false" [nzRemove]="deleteUpload" [nzShowUploadList]="uploadListOptions" [nzDisabled]="fileList.length !== 0">
+              <button nz-button type="button">
+                Select File
+              </button>
+            </nz-upload>
+              <button nz-button type="button" (click)="uploadFile()" [disabled]="fileList.length === 0">
+                Upload
+              </button>
+          </nz-form-control>
+        </nz-form-item>
+        <div *ngFor="let pair of keyValuePairs; let index=index;">
+          <nz-form-item>
+            <input nz-input placeholder="Key" [disabled]="pair.disabled === 'true'" [(ngModel)]="pair.key" [ngModelOptions]="{standalone: true}" class="inline-block w-32 mr-2"/>
+            <input nz-input placeholder="Value" [disabled]="pair.disabled === 'true'" [(ngModel)]="pair.value"[ngModelOptions]="{standalone: true}" class="inline-block w-32 ml-2"/>
+            <button nz-button type="button" class="ml-4" (click)="editPair(index)">Toggle edit</button>
+            <button nz-button type="button" class="ml-4" (click)="removePair(index)">Delete</button>
+          </nz-form-item>
+        </div>
+        <button nz-button type="button" (click)="addKeyValuePair()"> Add custom options </button>
+      </form>
+    </div>
+    <ng-template #footerTpl>
+      <div class="flex flex-row gap-2">
+        <button class="ml-auto" nz-button (click)="resetForm()">Cancel</button>
+        <button nz-button nzType="primary" [disabled]="selectedRequestForm.invalid" (click)="save()">Save</button>
+      </div>
+    </ng-template>
+  </nz-drawer>
+  
+  <nz-modal
+    [nzVisible]="!!deleteRequestId()"
+    nzTitle="Confirm"
+    (nzOnCancel)="deleteRequestId.set(null)"
+    (nzOnOk)="deleteRequest(deleteRequestId()!)"
+  >
+    <ng-container *nzModalContent>
+      <p>Are you sure you want to delete Job {{ deleteRequestId() }}?</p>
+    </ng-container>
+  </nz-modal>
